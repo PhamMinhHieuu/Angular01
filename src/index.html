@@ -2,12 +2,137 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Angular01</title>
+    <title>Quản lý sinh viên</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
-<body>
+
+  <body>
+
+  <h2>Quản lý sinh viên</h2>
+
+  <button onclick="showForm('add')">Thêm Sinh viên</button>
+
+  <div id="studentList">
+      <!-- Danh sách sinh viên sẽ hiển thị ở đây -->
+  </div>
+
+  <!-- Form Thêm/Sửa Sinh viên -->
+  <div id="studentForm">
+      <h3 id="formTitle">Thêm Sinh viên</h3>
+      <label for="name">Tên: </label>
+      <input type="text" id="name">
+      <br>
+      <label for="age">Tuổi: </label>
+      <input type="number" id="age">
+      <br>
+      <label for="hometown">Quê quán: </label>
+      <input type="text" id="hometown">
+      <br>
+      <div class="actions">
+          <button onclick="saveStudent()">Lưu</button>
+          <button onclick="cancelForm()">Hủy</button>
+      </div>
+  </div>
+
+  <script>
+      // Lấy danh sách sinh viên từ Local Storage
+      let students = JSON.parse(localStorage.getItem('students')) || [];
+
+      // Hiển thị form Thêm/Sửa Sinh viên
+      function showForm(action, index) {
+          const formTitle = document.getElementById('formTitle');
+          const nameInput = document.getElementById('name');
+          const ageInput = document.getElementById('age');
+          const hometownInput = document.getElementById('hometown');
+          const studentForm = document.getElementById('studentForm');
+
+          if (action === 'add') {
+              formTitle.textContent = 'Thêm Sinh viên';
+              nameInput.value = '';
+              ageInput.value = '';
+              hometownInput.value = '';
+          } else if (action === 'edit') {
+              formTitle.textContent = 'Sửa Sinh viên';
+              nameInput.value = students[index].name;
+              ageInput.value = students[index].age;
+              hometownInput.value = students[index].hometown;
+          }
+
+          studentForm.style.display = 'block';
+      }
+
+      // Lưu thông tin Sinh viên vào Local Storage
+      function saveStudent() {
+          const nameInput = document.getElementById('name');
+          const ageInput = document.getElementById('age');
+          const hometownInput = document.getElementById('hometown');
+
+          const student = {
+              name: nameInput.value,
+              age: ageInput.value,
+              hometown: hometownInput.value
+          };
+
+          // Nếu đang sửa thông tin sinh viên, thì cập nhật thông tin
+          if (editingIndex !== null) {
+              students[editingIndex] = student;
+              editingIndex = null;
+          } else {
+              // Ngược lại, thêm sinh viên mới
+              students.push(student);
+          }
+
+          localStorage.setItem('students', JSON.stringify(students));
+          displayStudents();
+          cancelForm();
+      }
+
+      // Hiển thị danh sách Sinh viên
+      function displayStudents() {
+          const studentList = document.getElementById('studentList');
+          studentList.innerHTML = '';
+
+          students.forEach((student, index) => {
+              const studentItem = document.createElement('div');
+              studentItem.className = 'studentItem';
+              studentItem.innerHTML = `<p>${student.name}, ${student.age} tuổi, Quê quán: ${student.hometown}</p>
+                                      <div class="actions">
+                                          <button onclick="showForm('edit', ${index})">Sửa</button>
+                                          <button onclick="deleteStudent(${index})">Xoá</button>
+                                          <button onclick="showDetail(${index})">Xem chi tiết</button>
+                                      </div>`;
+              studentList.appendChild(studentItem);
+          });
+      }
+
+      // Xoá Sinh viên
+      function deleteStudent(index) {
+          students.splice(index, 1);
+          localStorage.setItem('students', JSON.stringify(students));
+          displayStudents();
+      }
+
+      // Hiển thị chi tiết Sinh viên
+      function showDetail(index) {
+          const student = students[index];
+          alert(`Chi tiết Sinh viên:\nTên: ${student.name}\nTuổi: ${student.age}\nQuê quán: ${student.hometown}`);
+      }
+
+      // Hủy form Thêm/Sửa Sinh viên
+      function cancelForm() {
+          const studentForm = document.getElementById('studentForm');
+          studentForm.style.display = 'none';
+      }
+
+      // Hiển thị danh sách sinh viên khi trang web được tải
+      displayStudents();
+
+      // Biến dùng để lưu index đang sửa
+      let editingIndex = null;
+  </script>
+  </body>
   <app-root></app-root>
-</body>
-</html>
+  
+  </html>
